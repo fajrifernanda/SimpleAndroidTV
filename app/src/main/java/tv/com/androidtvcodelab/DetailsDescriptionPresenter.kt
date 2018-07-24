@@ -15,6 +15,7 @@
 package tv.com.androidtvcodelab
 
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter
+import android.support.v4.content.ContextCompat
 
 class DetailsDescriptionPresenter : AbstractDetailsDescriptionPresenter() {
 

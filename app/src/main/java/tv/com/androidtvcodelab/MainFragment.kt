@@ -14,6 +14,7 @@
 
 package tv.com.androidtvcodelab
 
+import android.content.Context
 import java.util.Collections
 import java.util.Timer
 import java.util.TimerTask
@@ -25,20 +26,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v17.leanback.app.BackgroundManager
 import android.support.v17.leanback.app.BrowseFragment
-import android.support.v17.leanback.widget.ArrayObjectAdapter
-import android.support.v17.leanback.widget.HeaderItem
-import android.support.v17.leanback.widget.ImageCardView
-import android.support.v17.leanback.widget.ListRow
-import android.support.v17.leanback.widget.ListRowPresenter
-import android.support.v17.leanback.widget.OnItemViewClickedListener
-import android.support.v17.leanback.widget.OnItemViewSelectedListener
-import android.support.v17.leanback.widget.Presenter
-import android.support.v17.leanback.widget.Row
-import android.support.v17.leanback.widget.RowPresenter
+import android.support.v17.leanback.app.HeadersFragment
+import android.support.v17.leanback.app.HeadersSupportFragment
+import android.support.v17.leanback.widget.*
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.content.ContextCompat
 import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TextView
@@ -87,6 +82,7 @@ class MainFragment : BrowseFragment() {
 
         mBackgroundManager = BackgroundManager.getInstance(activity)
         mBackgroundManager.attach(activity.window)
+        mBackgroundManager.color = ContextCompat.getColor(activity,R.color.selected_background)
         mDefaultBackground = ContextCompat.getDrawable(activity, R.drawable.default_background)
         mMetrics = DisplayMetrics()
         activity.windowManager.defaultDisplay.getMetrics(mMetrics)
@@ -94,12 +90,24 @@ class MainFragment : BrowseFragment() {
 
     private fun setupUIElements() {
         title = getString(R.string.browse_title)
+
         // over title
         headersState = BrowseFragment.HEADERS_ENABLED
+        var header:PresenterSelector
+
+
         isHeadersTransitionOnBackEnabled = true
 
+        setHeaderPresenterSelector(object : PresenterSelector(){
+            override fun getPresenter(item: Any?): Presenter {
+                return IconHeaderItemPresenter()
+            }
+
+        })
+
+
         // set fastLane (or headers) background color
-        brandColor = ContextCompat.getColor(activity, R.color.fastlane_background)
+        brandColor = ContextCompat.getColor(activity, R.color.selected_background)
         // set search icon color
         searchAffordanceColor = ContextCompat.getColor(activity, R.color.search_opaque)
     }
@@ -122,26 +130,34 @@ class MainFragment : BrowseFragment() {
         val list = movieList
         val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
         val cardPresenter = CardPresenter()
+        val gridItemPresenter:IconHeaderItem = IconHeaderItem(0,"GridItemPresenter",R.drawable.lb_ic_actions_right_arrow)
 
 
         val listRowAdapter = ArrayObjectAdapter(cardPresenter)
 
         listRowAdapter.addAll(0, list)
 
-        rowsAdapter.add(ListRow(HeaderItem("Movie"), listRowAdapter))
+        rowsAdapter.add(ListRow(IconHeaderItem(0,"Movie",R.drawable.lb_ic_actions_right_arrow), listRowAdapter))
+        rowsAdapter.add(ListRow(IconHeaderItem(0,"Popular",R.drawable.lb_ic_actions_right_arrow), listRowAdapter))
+        rowsAdapter.add(ListRow(IconHeaderItem(0,"Best",R.drawable.lb_ic_actions_right_arrow), listRowAdapter))
+
 
         adapter = rowsAdapter
+
     }
+
 
     private fun setupEventListeners() {
         setOnSearchClickedListener {
             Toast.makeText(activity, "Implement your own in-app search", Toast.LENGTH_LONG)
                     .show()
         }
-
         onItemViewClickedListener = ItemViewClickedListener()
         onItemViewSelectedListener = ItemViewSelectedListener()
+
+
     }
+
 
     private inner class ItemViewClickedListener : OnItemViewClickedListener {
         override fun onItemClicked(
@@ -154,6 +170,7 @@ class MainFragment : BrowseFragment() {
                 Log.d(TAG, "Item: " + item.toString())
                 val intent = Intent(activity, DetailsActivity::class.java)
                 intent.putExtra(DetailsActivity.MOVIE, item)
+                intent.putExtra("category",row.headerItem.name)
 
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         activity,
@@ -185,19 +202,22 @@ class MainFragment : BrowseFragment() {
     private fun updateBackground(uri: String?) {
         val width = mMetrics.widthPixels
         val height = mMetrics.heightPixels
-        Glide.with(activity)
-                .load(uri)
-                .centerCrop()
-                .error(mDefaultBackground)
-                .into<SimpleTarget<GlideDrawable>>(
-                        object : SimpleTarget<GlideDrawable>(width, height) {
-                            override fun onResourceReady(resource: GlideDrawable,
-                                                         glideAnimation: GlideAnimation<in GlideDrawable>) {
-                                mBackgroundManager.drawable = resource
-                            }
-                        })
+//        mBackgroundManager.drawable = ContextCompat.getDrawable(activity,R.drawable.default_background)
+
+//        Glide.with(activity)
+//                .load(uri)
+//                .centerCrop()
+//                .error(mDefaultBackground)
+//                .into<SimpleTarget<GlideDrawable>>(
+//                        object : SimpleTarget<GlideDrawable>(width, height) {
+//                            override fun onResourceReady(resource: GlideDrawable,
+//                                                         glideAnimation: GlideAnimation<in GlideDrawable>) {
+//                                mBackgroundManager.drawable = resource
+//                            }
+//                        })
         mBackgroundTimer?.cancel()
     }
+
 
     private fun startBackgroundTimer() {
         mBackgroundTimer?.cancel()
@@ -241,3 +261,5 @@ class MainFragment : BrowseFragment() {
         private val NUM_COLS = 15
     }
 }
+
+

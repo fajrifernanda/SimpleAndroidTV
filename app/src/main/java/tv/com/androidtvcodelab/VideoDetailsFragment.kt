@@ -18,6 +18,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.support.v17.leanback.app.BrowseFragment
 import android.support.v17.leanback.app.DetailsFragment
 import android.support.v17.leanback.app.DetailsFragmentBackgroundController
 import android.support.v17.leanback.widget.Action
@@ -44,6 +45,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SimpleTarget
+import kotlinx.android.synthetic.main.activity_details.*
 
 import java.util.Collections
 
@@ -67,11 +69,11 @@ class VideoDetailsFragment : DetailsFragment() {
 
         mSelectedMovie = activity.intent.getSerializableExtra(DetailsActivity.MOVIE) as Movie
         if (mSelectedMovie != null) {
+
             mPresenterSelector = ClassPresenterSelector()
             mAdapter = ArrayObjectAdapter(mPresenterSelector)
             setupDetailsOverviewRow()
             setupDetailsOverviewRowPresenter()
-            setupRelatedMovieListRow()
             adapter = mAdapter
             initializeBackground(mSelectedMovie)
             onItemViewClickedListener = ItemViewClickedListener()
@@ -82,7 +84,10 @@ class VideoDetailsFragment : DetailsFragment() {
     }
 
     private fun initializeBackground(movie: Movie?) {
+        title = activity.intent.getStringExtra("category")
         mDetailsBackground.enableParallax()
+
+
         Glide.with(activity)
                 .load("http://image.tmdb.org/t/p/w1280/"+movie?.backdrop_path) //yang diubah
                 .asBitmap()
@@ -95,16 +100,18 @@ class VideoDetailsFragment : DetailsFragment() {
                         mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size())
                     }
                 })
+
     }
 
     private fun setupDetailsOverviewRow() {
+
         Log.d(TAG, "doInBackground: " + mSelectedMovie?.toString())
         val row = DetailsOverviewRow(mSelectedMovie)
-        row.imageDrawable = ContextCompat.getDrawable(activity, R.drawable.default_background)
+//        row.imageDrawable = ContextCompat.getDrawable(activity, R.drawable.default_background)
         val width = convertDpToPixel(activity, DETAIL_THUMB_WIDTH)
         val height = convertDpToPixel(activity, DETAIL_THUMB_HEIGHT)
         Glide.with(activity)
-                .load("http://image.tmdb.org/t/p/w185/"+mSelectedMovie?.poster_path) //diubah
+                .load("http://image.tmdb.org/t/p/w1280/"+mSelectedMovie?.backdrop_path) //diubah
                 .centerCrop()
                 .error(R.drawable.default_background)
                 .into<SimpleTarget<GlideDrawable>>(object : SimpleTarget<GlideDrawable>(width, height) {
@@ -117,32 +124,28 @@ class VideoDetailsFragment : DetailsFragment() {
                 })
 
         val actionAdapter = ArrayObjectAdapter()
-
         actionAdapter.add(
                 Action(
                         ACTION_WATCH_TRAILER,
-                        resources.getString(R.string.watch_trailer_1),
-                        resources.getString(R.string.watch_trailer_2)))
+                        "FOX Movies"))
         actionAdapter.add(
                 Action(
                         ACTION_RENT,
-                        resources.getString(R.string.rent_1),
-                        resources.getString(R.string.rent_2)))
-        actionAdapter.add(
-                Action(
-                        ACTION_BUY,
-                        resources.getString(R.string.buy_1),
-                        resources.getString(R.string.buy_2)))
-        row.actionsAdapter = actionAdapter
+                        "Sabtu, 4 Nov pukul 19:00 WIB"))
 
+        row.actionsAdapter = actionAdapter
         mAdapter.add(row)
     }
 
     private fun setupDetailsOverviewRowPresenter() {
         // Set detail background.
         val detailsPresenter = FullWidthDetailsOverviewRowPresenter(DetailsDescriptionPresenter())
+        detailsPresenter.isParticipatingEntranceTransition
         detailsPresenter.backgroundColor =
-                ContextCompat.getColor(activity, R.color.selected_background)
+                ContextCompat.getColor(activity,R.color.black_transparent)
+        detailsPresenter.actionsBackgroundColor = ContextCompat.getColor(activity, R.color.action_background)
+
+
 
         // Hook up transition element.
         val sharedElementHelper = FullWidthDetailsOverviewSharedElementHelper()
@@ -152,13 +155,13 @@ class VideoDetailsFragment : DetailsFragment() {
         detailsPresenter.isParticipatingEntranceTransition = true
 
         detailsPresenter.onActionClickedListener = OnActionClickedListener { action ->
-            if (action.id == ACTION_WATCH_TRAILER) {
-                val intent = Intent(activity, PlaybackActivity::class.java)
-                intent.putExtra(DetailsActivity.MOVIE, mSelectedMovie)
-                startActivity(intent)
-            } else {
+//            if (action.id == ACTION_WATCH_TRAILER) {
+//                val intent = Intent(activity, PlaybackActivity::class.java)
+//                intent.putExtra(DetailsActivity.MOVIE, mSelectedMovie)
+//                startActivity(intent)
+//            } else {
                 Toast.makeText(activity, action.toString(), Toast.LENGTH_SHORT).show()
-            }
+//            }
         }
         mPresenterSelector.addClassPresenter(DetailsOverviewRow::class.java, detailsPresenter)
     }
@@ -212,8 +215,8 @@ class VideoDetailsFragment : DetailsFragment() {
         private val ACTION_RENT = 2L
         private val ACTION_BUY = 3L
 
-        private val DETAIL_THUMB_WIDTH = 140 //yang diubah
-        private val DETAIL_THUMB_HEIGHT = 200 //yang diubah
+        private val DETAIL_THUMB_WIDTH = 290 //yang diubah
+        private val DETAIL_THUMB_HEIGHT = 160 //yang diubah
 
         private val NUM_COLS = 10
     }

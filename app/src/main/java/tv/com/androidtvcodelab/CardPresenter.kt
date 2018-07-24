@@ -60,10 +60,10 @@ class CardPresenter : Presenter() {
         Log.d(TAG, "onBindViewHolder")
         if (movie.poster_path != null) { //yang diubah
             cardView.titleText = movie.title
-            cardView.contentText = movie.vote_average.toString() //yang diubah
+            cardView.contentText = movie.overview //yang diubah
             cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
             Glide.with(viewHolder.view.context)
-                    .load("http://image.tmdb.org/t/p/w185/"+movie.poster_path)  //yang diubah
+                    .load("http://image.tmdb.org/t/p/w1280/"+item.backdrop_path)  //yang diubah
                     .centerCrop()
                     .error(mDefaultCardImage)
                     .into(cardView.mainImageView)
@@ -89,7 +89,7 @@ class CardPresenter : Presenter() {
     companion object {
         private val TAG = "CardPresenter"
 
-        private val CARD_WIDTH = 140  //yang diubah
-        private val CARD_HEIGHT = 200  //yang diubah
+        private val CARD_WIDTH = 290  //yang diubah
+        private val CARD_HEIGHT = 140  //yang diubah
     }
 }

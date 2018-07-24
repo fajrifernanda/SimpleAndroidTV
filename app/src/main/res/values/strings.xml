@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">AndroidTvCodelab</string>
-    <string name="browse_title"><![CDATA[My Android TV Apps]]></string>
+    <string name="browse_title"><![CDATA[What\'s on]]></string>
     <string name="related_movies">Related Videos</string>
     <string name="grid_view">Grid View</string>
     <string name="error_fragment">Error Fragment</string>
